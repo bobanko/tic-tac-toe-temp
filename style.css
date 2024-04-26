@@ -1,0 +1,12 @@
+@import url(./reset.css);
+@import url(./helpers.css);
+@import url(./cell-grid.css);
+
+body {
+  height: 100vh;
+  height: 100dvh;
+  width: 100vw;
+
+  /* background-color: dimgray; */
+  background-color: #e8ca55;
+}

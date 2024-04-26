@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe</title>
+    <script type="module" src="./main.js" async></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="flex-col align-center justify-center">
+    <section class="main">
+      <template id="$tmplCell">
+        <div class="cell"></div>
+      </template>
+      <div id="$cellGrid" class="cell-grid">
+        <div class="cell"></div>
+        <div class="cell mark-0"></div>
+        <div class="cell mark-x"></div>
+
+        <div class="cell mark-0 to-delete"></div>
+        <div class="cell mark-x"></div>
+        <div class="cell"></div>
+
+        <div class="cell"></div>
+        <div class="cell mark-0"></div>
+        <div class="cell mark-x to-delete"></div>
+      </div>
+    </section>
+    <section class="settings"></section>
+  </body>
+</html>
