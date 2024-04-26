@@ -8,22 +8,46 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body class="flex-col align-center justify-center">
-    <section class="main">
+    <section class="main flex-col">
       <template id="$tmplCell">
         <div class="cell"></div>
       </template>
-      <div id="$cellGrid" class="cell-grid">
-        <div class="cell"></div>
-        <div class="cell mark-0"></div>
-        <div class="cell mark-x"></div>
+      <div class="grid-wrapper flex align-center">
+        <div id="$cellGrid" class="cell-grid">
+          <div class="cell"></div>
+          <div class="cell mark-0"></div>
+          <div class="cell mark-x"></div>
 
-        <div class="cell mark-0 to-delete"></div>
-        <div class="cell mark-x"></div>
-        <div class="cell"></div>
+          <div class="cell mark-0 to-delete"></div>
+          <div class="cell mark-x"></div>
+          <div class="cell"></div>
 
-        <div class="cell"></div>
-        <div class="cell mark-0"></div>
-        <div class="cell mark-x to-delete"></div>
+          <div class="cell"></div>
+          <div class="cell mark-0"></div>
+          <div class="cell mark-x to-delete"></div>
+        </div>
+      </div>
+
+      <!-- <div class="flex justify-center">
+        <input type="range" name="" id="" min="0" max="3" />
+      </div> -->
+      <div class="mode-selector flex justify-center">
+        <div class="mode-option">
+          <img class="mode-icon" src="./icon-power.svg" alt="power-off" />
+        </div>
+        <div class="mode-option">
+          <img class="mode-icon" src="./icon-player-single.svg" alt="single" />
+        </div>
+        <div class="mode-option">
+          <img
+            class="mode-icon"
+            src="./icon-player-multi.svg"
+            alt="multiplayer"
+          />
+        </div>
+        <div class="mode-option">
+          <img class="mode-icon" src="./icon-zero.svg" alt="memory game" />
+        </div>
       </div>
     </section>
     <section class="settings"></section>

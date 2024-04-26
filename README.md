@@ -1,6 +1,6 @@
 # tic-tac-toe-temp
 
-tic tac toe game inspired by giiker
+tic tac toe game inspired by giiker - https://www.youtube.com/watch?v=sOiFPf42gMQ
 
 # Demo
 

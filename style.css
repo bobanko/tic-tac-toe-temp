@@ -9,4 +9,26 @@ body {
 
   /* background-color: dimgray; */
   background-color: #e8ca55;
+  /* background-color: #ebcc1f; */
+}
+
+.main {
+  height: 100dvh;
+}
+
+.grid-wrapper {
+  flex-grow: 1;
+}
+
+.mode-selector {
+  font-size: 5rem;
+  gap: 2rem;
+
+  box-shadow: 0px -0.2rem 0 #ffe994, 0 -0.4rem 0 #d3b337;
+  background-color: #d3b337;
+}
+
+.mode-icon {
+  width: 3rem;
+  height: 3rem;
 }
