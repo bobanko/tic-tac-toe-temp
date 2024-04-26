@@ -10,21 +10,51 @@
   <body class="flex-col align-center justify-center">
     <section class="main flex-col">
       <template id="$tmplCell">
-        <div class="cell"></div>
+        <div class="cell">
+          <img class="img-x" src="./mark-cross.svg" alt="x" />
+          <img class="img-0" src="./mark-zero.svg" alt="0" />
+        </div>
       </template>
       <div class="grid-wrapper flex align-center">
         <div id="$cellGrid" class="cell-grid">
-          <div class="cell"></div>
-          <div class="cell mark-0"></div>
-          <div class="cell mark-x"></div>
+          <!-- <div class="cell mark-x mark-0">
+            <img class="img-x" src="./mark-cross.svg" alt="x" />
+            <img class="img-0" src="./mark-zero.svg" alt="0" />
+          </div>
+          <div class="cell mark-x">
+            <img class="img-x" src="./mark-cross.svg" alt="x" />
+            <img class="img-0" src="./mark-zero.svg" alt="0" />
+          </div>
+          <div class="cell mark-0">
+            <img class="img-x" src="./mark-cross.svg" alt="x" />
+            <img class="img-0" src="./mark-zero.svg" alt="0" />
+          </div>
 
-          <div class="cell mark-0 to-delete"></div>
-          <div class="cell mark-x"></div>
-          <div class="cell"></div>
+          <div class="cell mark-0 to-delete">
+            <img class="img-x" src="./mark-cross.svg" alt="x" />
+            <img class="img-0" src="./mark-zero.svg" alt="0" />
+          </div>
+          <div class="cell mark-x">
+            <img class="img-x" src="./mark-cross.svg" alt="x" />
+            <img class="img-0" src="./mark-zero.svg" alt="0" />
+          </div>
+          <div class="cell">
+            <img class="img-x" src="./mark-cross.svg" alt="x" />
+            <img class="img-0" src="./mark-zero.svg" alt="0" />
+          </div>
 
-          <div class="cell"></div>
-          <div class="cell mark-0"></div>
-          <div class="cell mark-x to-delete"></div>
+          <div class="cell">
+            <img class="img-x" src="./mark-cross.svg" alt="x" />
+            <img class="img-0" src="./mark-zero.svg" alt="0" />
+          </div>
+          <div class="cell mark-0">
+            <img class="img-x" src="./mark-cross.svg" alt="x" />
+            <img class="img-0" src="./mark-zero.svg" alt="0" />
+          </div>
+          <div class="cell mark-x to-delete">
+            <img class="img-x" src="./mark-cross.svg" alt="x" />
+            <img class="img-0" src="./mark-zero.svg" alt="0" />
+          </div> -->
         </div>
       </div>
 
@@ -32,20 +62,20 @@
         <input type="range" name="" id="" min="0" max="3" />
       </div> -->
       <div class="mode-selector flex justify-center">
-        <div class="mode-option">
+        <div id="$btnPowerOff" class="mode-option">
           <img class="mode-icon" src="./icon-power.svg" alt="power-off" />
         </div>
-        <div class="mode-option">
+        <div class="mode-option mode-selected">
           <img class="mode-icon" src="./icon-player-single.svg" alt="single" />
         </div>
-        <div class="mode-option">
+        <div class="mode-option" disabled>
           <img
             class="mode-icon"
             src="./icon-player-multi.svg"
             alt="multiplayer"
           />
         </div>
-        <div class="mode-option">
+        <div class="mode-option" disabled>
           <img class="mode-icon" src="./icon-zero.svg" alt="memory game" />
         </div>
       </div>

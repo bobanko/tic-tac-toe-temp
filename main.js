@@ -1,25 +1,12 @@
-// $cellGrid.addEventListener("click", (event) => {
-//   if (!event.target.classList.contains("cell")) return;
+// helpers
+export function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-//   console.log(event.target);
-// });
+// -----------
 
 const cellCount = 9;
 const maxMoves = 3;
-
-function initGrid() {
-  $cellGrid.replaceChildren();
-
-  for (let cellIndex = 0; cellIndex < cellCount; cellIndex++) {
-    const cellFragment = $tmplCell.content.cloneNode(true); //fragment
-    const $cell = cellFragment.firstElementChild;
-
-    $cell.addEventListener("click", onCellClick);
-    $cellGrid.appendChild($cell);
-  }
-}
-
-initGrid();
 
 const markCross = "mark-x";
 const markZero = "mark-0";
@@ -34,6 +21,62 @@ const players = [
   { value: "zero", className: markZero, lastMoves: [] },
 ];
 
+// -----------
+
+async function playIntro() {
+  // todo(vmyshko): make different random intro animations
+
+  // todo(vmyshko): play anims over existing field? do not delete cells?
+
+  // intro animation
+  const animSpeed = 500;
+
+  await wait(animSpeed);
+
+  for (let $cell of $cellGrid.children) {
+    $cell.classList.add(markCross);
+    // await wait(100);
+  }
+
+  await wait(animSpeed);
+
+  for (let $cell of $cellGrid.children) {
+    $cell.classList.remove(markCross);
+    // await wait(100);
+  }
+
+  await wait(animSpeed);
+  // end
+}
+
+async function initGrid() {
+  $cellGrid.replaceChildren();
+
+  const rowSize = cellCount ** 0.5;
+  const colSize = cellCount ** 0.5;
+
+  for (let rowIndex = 0; rowIndex < rowSize; rowIndex++) {
+    for (let colIndex = 0; colIndex < colSize; colIndex++) {
+      const cellFragment = $tmplCell.content.cloneNode(true); //fragment
+      const $cell = cellFragment.firstElementChild;
+
+      $cell.dataset.col = colIndex;
+      $cell.dataset.row = rowIndex;
+
+      $cell.addEventListener("click", onCellClick);
+      $cellGrid.appendChild($cell);
+    }
+  }
+
+  await playIntro();
+
+  // todo(vmyshko): enable game
+}
+
+initGrid();
+
+$btnPowerOff.addEventListener("click", initGrid);
+
 function getCurrentPlayer() {
   return players[0];
 }
@@ -45,7 +88,9 @@ function changePlayer() {
 function onCellClick() {
   const $cell = this;
 
-  console.log($cell);
+  const { col, row } = $cell.dataset;
+
+  console.log({ col, row }, $cell);
 
   const hasMark = [markCross, markZero].some((mark) => {
     return $cell.classList.contains(mark);

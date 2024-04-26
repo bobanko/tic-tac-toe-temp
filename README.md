@@ -8,6 +8,10 @@ https://bobanko.github.io/tic-tac-toe-temp/
 
 ## todo
 
-[ ] some  
-[ ] some  
+### ui
+
+[ ] play different random intro animations  
+[ ] make ai-mode  
+[ ] make pvp-mode  
+[ ] check win condition  
 [ ] some
