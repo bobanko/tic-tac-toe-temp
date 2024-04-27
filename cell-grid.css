@@ -8,18 +8,19 @@
   grid-column-gap: 0;
   grid-row-gap: 0;
 
-  height: 100vmin;
+  /* height: 100vmin; */
+  height: 95vmin;
   aspect-ratio: 1 / 1;
 
   border: 0.1rem solid black;
   box-sizing: border-box;
   background-color: white;
 
-  row-gap: 1rem;
-  column-gap: 1rem;
+  row-gap: 3vmin;
+  column-gap: 3vmin;
 
-  border: 1rem solid black;
-  border-radius: 1rem;
+  border: 4vmin solid black;
+  border-radius: 3vmin;
 }
 
 .cell {
@@ -32,9 +33,9 @@
 
   background-color: black;
 
-  border: 1rem solid transparent;
+  border: 4vmin solid transparent;
 
-  border-radius: 1rem;
+  border-radius: 3vmin;
   /* disable mobile highlight */
   -webkit-tap-highlight-color: transparent;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -42,25 +43,25 @@
 
 /* left */
 .cell:nth-child(3n-2) {
-  border-top-left-radius: 0rem;
-  border-bottom-left-radius: 0rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 /* right */
 .cell:nth-child(3n) {
-  border-top-right-radius: 0rem;
-  border-bottom-right-radius: 0rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 /* top */
 .cell:nth-child(-n + 3) {
-  border-top-right-radius: 0rem;
-  border-top-left-radius: 0rem;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
 }
 
 /* bottom */
 .cell:nth-last-child(-n + 3) {
-  border-bottom-right-radius: 0rem;
-  border-bottom-left-radius: 0rem;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .cell > img {
@@ -81,6 +82,10 @@
   transition: opacity 300ms ease-in-out;
 }
 
+/* 
+    todo(vmyshko): add blur effect for marks:
+    https://stackoverflow.com/questions/54112231/is-it-possible-to-create-a-glow-effect-in-svg
+*/
 .mark-x > .img-x {
   opacity: 1;
 }
