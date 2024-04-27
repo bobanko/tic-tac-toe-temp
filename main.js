@@ -1,55 +1,39 @@
-// helpers
-export function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import {
+  cellCount,
+  rowSize,
+  colSize,
+  maxMoves,
+  gameModes,
+  markCross,
+  markZero,
+  markOld,
+} from "./config.js";
+import { wait } from "./helpers.js";
+import {
+  animateCell,
+  animations,
+  showFlashingMarkIntro,
+} from "./animations.js";
+import { PlayerAi, PlayerHuman, PlayerQueue } from "./player.js";
 
 // -----------
 
-const cellCount = 9;
-
-const rowSize = cellCount ** 0.5;
-const colSize = cellCount ** 0.5;
-const maxMoves = rowSize;
-
-const markCross = "mark-x";
-const markZero = "mark-0";
-const markOld = "to-delete";
-
-const players = [
-  {
-    value: "cross",
-    className: markCross,
-    lastMoves: [],
-  },
-  { value: "zero", className: markZero, lastMoves: [] },
-];
+// let currentGameMode = gameModes.singleplayer;
+let currentGameMode = gameModes.multiplayer;
 
 // -----------
 
-async function playIntro() {
+async function playIntro(gameMode) {
   // todo(vmyshko): make different random intro animations
-
   // todo(vmyshko): play anims over existing field? do not delete cells?
 
-  // intro animation
-  const animSpeed = 500;
-
-  await wait(animSpeed);
-
-  for (let $cell of $cellGrid.children) {
-    $cell.classList.add(markCross);
-    // await wait(100);
+  if ([gameModes.multiplayer, gameModes.singleplayer].includes(gameMode)) {
+    await showFlashingMarkIntro({ mark: markCross, $cellGrid });
   }
 
-  await wait(animSpeed);
-
-  for (let $cell of $cellGrid.children) {
-    $cell.classList.remove(markCross);
-    // await wait(100);
+  if ([gameModes.memory].includes(gameMode)) {
+    await showFlashingMarkIntro({ mark: markZero, $cellGrid });
   }
-
-  await wait(animSpeed);
-  // end
 }
 
 function getCell({ col, row }) {
@@ -94,10 +78,11 @@ function enableGrid() {
   $cellGrid.removeAttribute("disabled");
 }
 
-async function initGrid() {
+async function initGrid(gameMode) {
   disableGrid();
   $cellGrid.replaceChildren();
 
+  // create cells
   for (let rowIndex = 0; rowIndex < rowSize; rowIndex++) {
     for (let colIndex = 0; colIndex < colSize; colIndex++) {
       const cellFragment = $tmplCell.content.cloneNode(true); //fragment
@@ -106,124 +91,127 @@ async function initGrid() {
       $cell.dataset.col = colIndex;
       $cell.dataset.row = rowIndex;
 
-      $cell.addEventListener("click", onCellClick);
       $cellGrid.appendChild($cell);
     }
   }
 
-  await playIntro();
+  await playIntro(gameMode);
 
   //enable game
   enableGrid();
+
+  const playerQueue = new PlayerQueue([
+    // new PlayerAi({ mark: markCross }),
+    // new PlayerAi({ mark: markCross }),
+    new PlayerHuman({ mark: markCross }),
+    new PlayerHuman({ mark: markZero }),
+  ]);
+
+  // todo(vmyshko): do in a loop until win
+  do {
+    const currentPlayer = playerQueue.getCurrentPlayer();
+
+    const $cell = await currentPlayer.makeMove({ $cellGrid });
+
+    {
+      //change player
+      $cell.classList.add(currentPlayer.mark);
+      currentPlayer.lastMoves.push($cell);
+
+      if (currentPlayer.lastMoves.length > maxMoves) {
+        const $cellToRemoveMark = currentPlayer.lastMoves.shift();
+
+        $cellToRemoveMark.classList.remove(currentPlayer.mark);
+        $cellToRemoveMark.classList.remove(markOld);
+      }
+
+      const opponentPlayer = playerQueue.nextPlayer();
+
+      if (opponentPlayer.lastMoves.length >= maxMoves) {
+        const [$cellToMarkOld] = opponentPlayer.lastMoves;
+        $cellToMarkOld.classList.add(markOld);
+      }
+
+      const { col, row } = $cell.dataset;
+
+      const { isWin, winCells = [] } = checkWin({
+        col,
+        row,
+        mark: currentPlayer.mark,
+      });
+
+      if (isWin) {
+        disableGrid();
+        console.log(`🏆 ${currentPlayer.name} ${currentPlayer.mark} wins`);
+        console.log({ isWin, winCells });
+
+        // anim win
+        winCells.forEach(($cell) => {
+          animateCell($cell, animations.win);
+        });
+
+        await wait(3000);
+
+        break;
+      }
+    }
+  } while (true);
+
+  console.log("game finished, restarting...");
+
+  //restart game
+  initGrid(currentGameMode); //recursive call!!
 }
 
-initGrid();
+// hanlders
 
 $btnPowerOff.addEventListener("click", () => {
   $btnPowerOff.animate(...animations.push);
-  initGrid();
+  initGrid(currentGameMode);
 });
 
-function getCurrentPlayer() {
-  return players[0];
+function changeGameMode(gameMode) {
+  $btnModeSingleplayer.classList.remove("mode-selected");
+  $btnModeMultiplayer.classList.remove("mode-selected");
+  $btnModeMemory.classList.remove("mode-selected");
+
+  currentGameMode = gameMode;
+
+  switch (currentGameMode) {
+    case gameModes.multiplayer: {
+      $btnModeMultiplayer.classList.add("mode-selected");
+      break;
+    }
+    case gameModes.singleplayer: {
+      $btnModeSingleplayer.classList.add("mode-selected");
+      break;
+    }
+    case gameModes.memory: {
+      $btnModeMemory.classList.add("mode-selected");
+      break;
+    }
+  }
+  //todo
+
+  initGrid(currentGameMode);
 }
 
-function changePlayer() {
-  players.push(players.shift());
-}
+changeGameMode(gameModes.multiplayer);
 
-async function onCellClick() {
-  const $cell = this;
+$btnModeSingleplayer.addEventListener("click", () => {
+  $btnModeSingleplayer.animate(...animations.push);
 
-  const { col, row } = $cell.dataset;
+  changeGameMode(gameModes.singleplayer);
+});
 
-  console.log({ col, row }, $cell);
+$btnModeMultiplayer.addEventListener("click", () => {
+  $btnModeMultiplayer.animate(...animations.push);
 
-  const hasMark = [markCross, markZero].some((mark) => {
-    return $cell.classList.contains(mark);
-  });
+  changeGameMode(gameModes.multiplayer);
+});
 
-  if (hasMark) {
-    animateCell($cell, animations.wrong);
-    return;
-  }
+$btnModeMemory.addEventListener("click", () => {
+  $btnModeMemory.animate(...animations.push);
 
-  //change player
-  const currentPlayer = getCurrentPlayer();
-
-  $cell.classList.add(currentPlayer.className);
-  currentPlayer.lastMoves.push($cell);
-
-  if (currentPlayer.lastMoves.length > maxMoves) {
-    const $cellToRemoveMark = currentPlayer.lastMoves.shift();
-
-    $cellToRemoveMark.classList.remove(currentPlayer.className);
-    $cellToRemoveMark.classList.remove(markOld);
-  }
-
-  changePlayer();
-
-  const opponentPlayer = getCurrentPlayer();
-
-  if (opponentPlayer.lastMoves.length >= maxMoves) {
-    const [$cellToMarkOld] = opponentPlayer.lastMoves;
-    $cellToMarkOld.classList.add(markOld);
-  }
-
-  console.log(currentPlayer.lastMoves);
-
-  const { isWin, winCells = [] } = checkWin({
-    col,
-    row,
-    mark: currentPlayer.className,
-  });
-
-  if (isWin) {
-    disableGrid();
-    console.log({ isWin, winCells });
-
-    // anim win
-    winCells.forEach(($cell) => {
-      animateCell($cell, animations.win);
-    });
-
-    await wait(3000);
-    //restart game
-    initGrid();
-  }
-}
-
-function animateCell($cell, animation) {
-  [...$cell.children].forEach(($child) => $child.animate(...animation));
-}
-
-const animations = {
-  win: [[{}, { opacity: 0 }, {}], { duration: 300, iterations: 5 }],
-  wrong: [
-    [
-      { transform: "rotate(-10deg)" },
-      {
-        transform: "rotate(5deg)",
-      },
-      {},
-    ],
-    {
-      duration: 300,
-      iterations: 1,
-    },
-  ],
-  push: [
-    [
-      {},
-      {
-        opacity: 0.4,
-        transform: "translateY(0.1rem)",
-      },
-      {},
-    ],
-    {
-      duration: 300,
-      iterations: 1,
-    },
-  ],
-};
+  changeGameMode(gameModes.memory);
+});
