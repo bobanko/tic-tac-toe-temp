@@ -119,7 +119,10 @@ async function initGrid() {
 
 initGrid();
 
-$btnPowerOff.addEventListener("click", initGrid);
+$btnPowerOff.addEventListener("click", () => {
+  $btnPowerOff.animate(...animations.push);
+  initGrid();
+});
 
 function getCurrentPlayer() {
   return players[0];
@@ -209,8 +212,15 @@ const animations = {
       iterations: 1,
     },
   ],
-  proper: [
-    [{}, { backgroundColor: "greenyellow", fontSize: "1.5rem" }, {}],
+  push: [
+    [
+      {},
+      {
+        opacity: 0.4,
+        transform: "translateY(0.1rem)",
+      },
+      {},
+    ],
     {
       duration: 300,
       iterations: 1,
