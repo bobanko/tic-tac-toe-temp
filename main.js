@@ -6,7 +6,10 @@ export function wait(ms) {
 // -----------
 
 const cellCount = 9;
-const maxMoves = 3;
+
+const rowSize = cellCount ** 0.5;
+const colSize = cellCount ** 0.5;
+const maxMoves = rowSize;
 
 const markCross = "mark-x";
 const markZero = "mark-0";
@@ -49,11 +52,51 @@ async function playIntro() {
   // end
 }
 
-async function initGrid() {
-  $cellGrid.replaceChildren();
+function getCell({ col, row }) {
+  // todo(vmyshko): better to use matrix?
+  const $cell = $cellGrid.querySelector(
+    `.cell[data-col='${col}'][data-row='${row}']`
+  );
 
-  const rowSize = cellCount ** 0.5;
-  const colSize = cellCount ** 0.5;
+  return $cell;
+}
+
+function checkWin({ col, row, mark }) {
+  const rowCells = [];
+  const colCells = [];
+  const mainDiagCells = [];
+  const altDiagCells = [];
+
+  // grab possible win lines
+  for (let rowIndex = 0; rowIndex < rowSize; rowIndex++) {
+    mainDiagCells.push(getCell({ col: rowIndex, row: rowIndex }));
+    colCells.push(getCell({ col: rowIndex, row: row }));
+    rowCells.push(getCell({ col: col, row: rowIndex }));
+    altDiagCells.push(getCell({ col: colSize - 1 - rowIndex, row: rowIndex }));
+  }
+
+  for (let lineCells of [rowCells, colCells, mainDiagCells, altDiagCells]) {
+    const isWin = lineCells.every(($cell) => $cell.classList.contains(mark));
+
+    if (isWin) {
+      return { isWin, winCells: lineCells };
+    }
+  }
+
+  return { isWin: false, lineCells: [] };
+}
+
+function disableGrid() {
+  $cellGrid.setAttribute("disabled", true);
+}
+
+function enableGrid() {
+  $cellGrid.removeAttribute("disabled");
+}
+
+async function initGrid() {
+  disableGrid();
+  $cellGrid.replaceChildren();
 
   for (let rowIndex = 0; rowIndex < rowSize; rowIndex++) {
     for (let colIndex = 0; colIndex < colSize; colIndex++) {
@@ -70,7 +113,8 @@ async function initGrid() {
 
   await playIntro();
 
-  // todo(vmyshko): enable game
+  //enable game
+  enableGrid();
 }
 
 initGrid();
@@ -85,7 +129,7 @@ function changePlayer() {
   players.push(players.shift());
 }
 
-function onCellClick() {
+async function onCellClick() {
   const $cell = this;
 
   const { col, row } = $cell.dataset;
@@ -97,6 +141,7 @@ function onCellClick() {
   });
 
   if (hasMark) {
+    animateCell($cell, animations.wrong);
     return;
   }
 
@@ -123,20 +168,44 @@ function onCellClick() {
   }
 
   console.log(currentPlayer.lastMoves);
+
+  const { isWin, winCells = [] } = checkWin({
+    col,
+    row,
+    mark: currentPlayer.className,
+  });
+
+  if (isWin) {
+    disableGrid();
+    console.log({ isWin, winCells });
+
+    // anim win
+    winCells.forEach(($cell) => {
+      animateCell($cell, animations.win);
+    });
+
+    await wait(3000);
+    //restart game
+    initGrid();
+  }
+}
+
+function animateCell($cell, animation) {
+  [...$cell.children].forEach(($child) => $child.animate(...animation));
 }
 
 const animations = {
-  disabled: [
-    [{}, { backgroundColor: "dimgray", fontSize: "1.5rem" }, {}],
-    {
-      duration: 200,
-      iterations: 1,
-    },
-  ],
+  win: [[{}, { opacity: 0 }, {}], { duration: 300, iterations: 5 }],
   wrong: [
-    [{}, { backgroundColor: "red", fontSize: "1.5rem" }, {}],
+    [
+      { transform: "rotate(-10deg)" },
+      {
+        transform: "rotate(5deg)",
+      },
+      {},
+    ],
     {
-      duration: 200,
+      duration: 300,
       iterations: 1,
     },
   ],

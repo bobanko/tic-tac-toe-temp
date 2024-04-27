@@ -15,3 +15,11 @@
 .justify-center {
   justify-content: center;
 }
+
+[hidden] {
+  display: none !important;
+}
+
+[disabled] {
+  pointer-events: none;
+}
