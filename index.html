@@ -61,21 +61,22 @@
       <!-- <div class="flex justify-center">
         <input type="range" name="" id="" min="0" max="3" />
       </div> -->
-      <div class="mode-selector flex justify-center">
+      <div class="mode-selector flex">
+        <!-- todo(vmyshko): replace to buttons -->
         <div id="$btnPowerOff" class="mode-option">
           <img class="mode-icon" src="./icon-power.svg" alt="power-off" />
         </div>
-        <div class="mode-option" disabled>
+        <div id="$btnModeSingleplayer" class="mode-option" disabled>
           <img class="mode-icon" src="./icon-player-single.svg" alt="single" />
         </div>
-        <div class="mode-option mode-selected">
+        <div id="$btnModeMultiplayer" class="mode-option mode-selected">
           <img
             class="mode-icon"
             src="./icon-player-multi.svg"
             alt="multiplayer"
           />
         </div>
-        <div class="mode-option" disabled>
+        <div id="$btnModeMemory" class="mode-option" disabled>
           <img class="mode-icon" src="./icon-zero.svg" alt="memory game" />
         </div>
       </div>
