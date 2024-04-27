@@ -7,37 +7,45 @@ body {
   height: 100dvh;
   width: 100vw;
 
+  background-color: gray;
+}
+
+.main {
+  height: 100dvh;
+  width: 100vmin;
+
   --bg-main: #e8ca55;
   /* background-color: dimgray; */
   background-color: var(--bg-main);
   /* background-color: #ebcc1f; */
 }
 
-.main {
-  height: 100dvh;
-}
-
 .grid-wrapper {
   flex-grow: 1;
 }
 
-.mode-selector {
-  font-size: 5rem;
-  gap: 2rem;
+/* modes */
 
-  box-shadow: 0px -0.2rem 0 #ffe994, 0 -0.4rem 0 #d3b337;
+.mode-selector {
+  justify-content: space-evenly;
+
+  box-shadow: 0px -1vmin 0 #ffe994, 0 -2vmin 0 #d3b337;
   background-color: #d3b337;
 }
 
-.mode-icon {
-  width: 3rem;
-  height: 3rem;
+.mode-option {
+  padding: 5vmin;
+}
+
+.mode-option[disabled] {
+  opacity: 0.2;
 }
 
 .mode-selected {
   background-color: var(--bg-main);
 }
 
-.mode-option[disabled] {
-  opacity: 0.2;
+.mode-icon {
+  width: 12vmin;
+  height: 12vmin;
 }
