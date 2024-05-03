@@ -1,10 +1,9 @@
-import { markCross, markZero } from "./config.js";
 import { animateCell, animations } from "./animations.js";
-import { wait } from "./helpers.js";
+import { markCross, markZero } from "./config.js";
 
 let uidcount = 0;
 
-class Player {
+export class Player {
   name = "🫥";
   //
 
@@ -16,12 +15,30 @@ class Player {
     this.uid = uidcount++;
   }
 
+  getInfo() {
+    const markEmoji = {
+      [markCross]: "❌",
+      [markZero]: "🔵",
+    };
+
+    return `${this.name}${markEmoji[this.mark]}[${this.uid}]`;
+  }
+
   makeMove() {
     console.error("not implemented");
   }
 
   cancelMove() {
     console.error("not implemented");
+  }
+
+  checkCell($cell) {
+    if (hasMarks($cell)) {
+      animateCell($cell, animations.wrong);
+      return false;
+    }
+
+    return true;
   }
 }
 
@@ -48,108 +65,8 @@ export class PlayerQueue {
   }
 }
 
-function hasMarks($cell) {
+export function hasMarks($cell) {
   return [markCross, markZero].some((mark) => {
     return $cell.classList.contains(mark);
   });
-}
-
-function getPlayerInfo(player) {
-  const markEmoji = {
-    [markCross]: "❌",
-    [markZero]: "🔵",
-  };
-
-  return `${markEmoji[player.mark]}${player.name}[${player.uid}]`;
-}
-
-// todo(vmyshko): put into human
-function waitForCellClick($grid) {
-  let { promise, resolve, reject } = Promise.withResolvers();
-
-  function clickResolver(event) {
-    if (!event.target.classList.contains("cell")) return;
-
-    const $cell = event.target;
-
-    if (hasMarks($cell)) {
-      animateCell($cell, animations.wrong);
-      return;
-    }
-
-    resolve($cell);
-    $grid.removeEventListener("click", clickResolver);
-
-    console.log("move done");
-  }
-
-  function rejector() {
-    reject();
-    $grid.removeEventListener("click", clickResolver);
-    console.log("move canceled");
-  }
-
-  $grid.addEventListener("click", clickResolver);
-
-  return { promise, reject: rejector };
-}
-
-export class PlayerHuman extends Player {
-  name = "🧠";
-
-  cancelMove() {
-    const self = this;
-
-    self.reject?.();
-    console.log(`🛑 ${getPlayerInfo(self)} move cancelled`);
-  }
-
-  async makeMove({ $cellGrid, resolve }) {
-    const self = this;
-
-    console.log(`${getPlayerInfo(self)} player thinks...`);
-
-    const { promise, reject } = waitForCellClick($cellGrid);
-
-    this.reject = reject;
-
-    try {
-      const $cell = await promise;
-
-      console.log(`${getPlayerInfo(self)} made move`, $cell);
-
-      resolve($cell);
-    } catch {
-      //   console.log(`🛑 ${getPlayerInfo(self)} move cancelled?`);
-    }
-  }
-}
-
-export class PlayerAi extends Player {
-  name = "🤖";
-
-  cancelMove() {
-    console.log(`🛑 ${getPlayerInfo(self)} move cancelled?`);
-  }
-
-  async makeMove({ $cellGrid, resolve }) {
-    const self = this;
-
-    // todo(vmyshko): do ai move
-    console.log(`${getPlayerInfo(self)} player thinks...`);
-
-    // todo(vmyshko): select good ai cell
-    await wait(300);
-
-    for (let $cell of $cellGrid.children) {
-      if (hasMarks($cell)) {
-        animateCell($cell, animations.wrong);
-        continue;
-      }
-
-      resolve($cell);
-      console.log(`${getPlayerInfo(self)} made move`, $cell);
-      break;
-    }
-  }
 }

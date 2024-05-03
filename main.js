@@ -14,7 +14,9 @@ import {
   animations,
   showFlashingMarkIntro,
 } from "./animations.js";
-import { PlayerAi, PlayerHuman, PlayerQueue } from "./player.js";
+import { PlayerQueue } from "./player.js";
+import { PlayerHuman } from "./player-human.js";
+import { PlayerAi } from "./player-ai.js";
 
 // -----------
 
@@ -177,7 +179,7 @@ async function initGrid(gameMode) {
 
       if (isWin) {
         disableGrid();
-        console.log(`🏆 ${currentPlayer.name} ${currentPlayer.mark} wins`);
+        console.log(`🏆 ${currentPlayer.getInfo()} wins`);
         console.log({ isWin, winCells });
 
         // anim win
