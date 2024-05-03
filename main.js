@@ -70,19 +70,20 @@ function checkWin({ col, row, mark }) {
   return { isWin: false, lineCells: [] };
 }
 
+const gridAndControls = [$cellGrid, $controlPanel];
+
+// todo(vmyshko): make generic, enable/disable provided elems
 function disableGrid() {
-  $cellGrid.setAttribute("disabled", true);
+  gridAndControls.forEach(($elem) => $elem.setAttribute("disabled", true));
 }
 
 function enableGrid() {
-  $cellGrid.removeAttribute("disabled");
+  gridAndControls.forEach(($elem) => $elem.removeAttribute("disabled"));
 }
 
-async function initGrid(gameMode) {
-  disableGrid();
-  $cellGrid.replaceChildren();
-
+function createCells() {
   // create cells
+  $cellGrid.replaceChildren();
   for (let rowIndex = 0; rowIndex < rowSize; rowIndex++) {
     for (let colIndex = 0; colIndex < colSize; colIndex++) {
       const cellFragment = $tmplCell.content.cloneNode(true); //fragment
@@ -94,24 +95,68 @@ async function initGrid(gameMode) {
       $cellGrid.appendChild($cell);
     }
   }
+}
+
+const unfinishedTurns = new Set();
+
+async function initGrid(gameMode) {
+  unfinishedTurns.forEach((turn) => {
+    turn();
+    unfinishedTurns.delete(turn);
+  });
+
+  disableGrid();
+
+  createCells();
 
   await playIntro(gameMode);
 
   //enable game
   enableGrid();
 
-  const playerQueue = new PlayerQueue([
-    // new PlayerAi({ mark: markCross }),
-    // new PlayerAi({ mark: markCross }),
-    new PlayerHuman({ mark: markCross }),
-    new PlayerHuman({ mark: markZero }),
-  ]);
+  const playerQueue = new PlayerQueue();
+  if (gameMode === gameModes.multiplayer) {
+    playerQueue.refill([
+      new PlayerHuman({ mark: markCross }),
+      new PlayerHuman({ mark: markZero }),
+    ]);
+  } else if (gameMode === gameModes.singleplayer) {
+    playerQueue.refill([
+      new PlayerHuman({ mark: markCross }),
+      new PlayerAi({ mark: markZero }),
+    ]);
+    //
+  } else if (gameMode === gameModes.memory) {
+    console.error("not impl");
+    playerQueue.refill([
+      // new PlayerMemoAi({ mark: markCross }),
+      // new PlayerMemoHuman({ mark: markZero }),
+    ]);
+  }
 
   // todo(vmyshko): do in a loop until win
-  do {
+  while (true) {
     const currentPlayer = playerQueue.getCurrentPlayer();
 
-    const $cell = await currentPlayer.makeMove({ $cellGrid });
+    const { promise: move, resolve, reject } = Promise.withResolvers();
+
+    unfinishedTurns.add((args) => reject(args));
+
+    currentPlayer.makeMove({ $cellGrid, resolve });
+
+    let $cell;
+
+    try {
+      $cell = await move;
+    } catch (err) {
+      // todo(vmyshko): cancel everything!11
+
+      console.log("🛑 game interrupted!!!");
+
+      currentPlayer.cancelMove();
+
+      return;
+    }
 
     {
       //change player
@@ -149,13 +194,14 @@ async function initGrid(gameMode) {
         winCells.forEach(($cell) => {
           animateCell($cell, animations.win);
         });
-
-        await wait(3000);
+        // wait for all cells to play win anim + extra delay
+        const [, { duration, iterations }] = animations.win;
+        await wait(duration * (iterations + 1));
 
         break;
       }
     }
-  } while (true);
+  }
 
   console.log("game finished, restarting...");
 

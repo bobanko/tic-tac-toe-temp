@@ -2,6 +2,8 @@ import { markCross, markZero } from "./config.js";
 import { animateCell, animations } from "./animations.js";
 import { wait } from "./helpers.js";
 
+let uidcount = 0;
+
 class Player {
   name = "🫥";
   //
@@ -10,16 +12,24 @@ class Player {
 
   constructor({ mark }) {
     this.mark = mark;
+
+    this.uid = uidcount++;
   }
 
   makeMove() {
     console.error("not implemented");
   }
+
+  cancelMove() {}
 }
 
 export class PlayerQueue {
-  constructor(players) {
+  constructor(players = []) {
     this.players = players;
+  }
+
+  refill(newPlayers = []) {
+    this.players.splice(0, this.players.length, ...newPlayers);
   }
 
   getCurrentPlayer() {
@@ -32,63 +42,107 @@ export class PlayerQueue {
   }
 }
 
+function hasMarks($cell) {
+  return [markCross, markZero].some((mark) => {
+    return $cell.classList.contains(mark);
+  });
+}
+
+function getPlayerInfo(player) {
+  const markEmoji = {
+    [markCross]: "❌",
+    [markZero]: "🔵",
+  };
+
+  return `${markEmoji[player.mark]}${player.name}[${player.uid}]`;
+}
+
+function waitForCellClick($grid) {
+  let { promise, resolve, reject } = Promise.withResolvers();
+
+  function clickResolver(event) {
+    if (!event.target.classList.contains("cell")) return;
+
+    const $cell = event.target;
+
+    if (hasMarks($cell)) {
+      animateCell($cell, animations.wrong);
+      return;
+    }
+
+    resolve($cell);
+    $grid.removeEventListener("click", clickResolver);
+
+    console.log("move done");
+  }
+
+  function rejector() {
+    reject();
+    $grid.removeEventListener("click", clickResolver);
+    console.log("move canceled");
+  }
+
+  $grid.addEventListener("click", clickResolver);
+
+  return { promise, reject: rejector };
+}
+
 export class PlayerHuman extends Player {
   name = "🧠";
 
-  async makeMove({ $cellGrid }) {
+  cancelMove() {
     const self = this;
-    console.log(`${self.name} player thinks...`);
-    return new Promise((resolve) => {
-      async function onCellClick(event) {
-        if (!event.target.classList.contains("cell")) return;
 
-        const $cell = event.target;
+    self.reject();
+    console.log(`🛑 ${getPlayerInfo(self)} move cancelled`);
+  }
 
-        const isMarkedCell = [markCross, markZero].some((mark) => {
-          return $cell.classList.contains(mark);
-        });
+  async makeMove({ $cellGrid, resolve }) {
+    const self = this;
 
-        if (isMarkedCell) {
-          animateCell($cell, animations.wrong);
-          return;
-        }
+    console.log(`${getPlayerInfo(self)} player thinks...`);
 
-        $cellGrid.removeEventListener("click", onCellClick);
-        resolve($cell);
-        console.log(`${self.name}  made move`, $cell);
-      }
+    const { promise, reject } = waitForCellClick($cellGrid);
 
-      $cellGrid.addEventListener("click", onCellClick);
-    });
+    this.reject = reject;
+
+    try {
+      const $cell = await promise;
+
+      console.log(`${getPlayerInfo(self)} made move`, $cell);
+
+      resolve($cell);
+    } catch {
+      console.log(`🛑 ${getPlayerInfo(self)} move cancelled?`);
+    }
   }
 }
 
 export class PlayerAi extends Player {
   name = "🤖";
 
-  async makeMove({ $cellGrid }) {
+  cancelMove() {
+    console.log(`🛑 ${getPlayerInfo(self)} move cancelled?`);
+  }
+
+  async makeMove({ $cellGrid, resolve }) {
     const self = this;
+
     // todo(vmyshko): do ai move
-    console.log(`${self.name} player thinks...`);
-    return new Promise(async (resolve) => {
-      // todo(vmyshko): select good ai cell
+    console.log(`${getPlayerInfo(self)} player thinks...`);
 
-      await wait(500);
+    // todo(vmyshko): select good ai cell
+    await wait(300);
 
-      for (let $cell of $cellGrid.children) {
-        const isMarkedCell = [markCross, markZero].some((mark) => {
-          return $cell.classList.contains(mark);
-        });
-
-        if (isMarkedCell) {
-          animateCell($cell, animations.wrong);
-          continue;
-        }
-
-        resolve($cell);
-        console.log(`${self.name}  made move`, $cell);
-        break;
+    for (let $cell of $cellGrid.children) {
+      if (hasMarks($cell)) {
+        animateCell($cell, animations.wrong);
+        continue;
       }
-    });
+
+      resolve($cell);
+      console.log(`${getPlayerInfo(self)} made move`, $cell);
+      break;
+    }
   }
 }
