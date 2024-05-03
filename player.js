@@ -20,7 +20,9 @@ class Player {
     console.error("not implemented");
   }
 
-  cancelMove() {}
+  cancelMove() {
+    console.error("not implemented");
+  }
 }
 
 export class PlayerQueue {
@@ -29,6 +31,10 @@ export class PlayerQueue {
   }
 
   refill(newPlayers = []) {
+    //cancel player's move from prev game
+    const currentPlayer = this.getCurrentPlayer();
+    currentPlayer?.cancelMove();
+
     this.players.splice(0, this.players.length, ...newPlayers);
   }
 
@@ -57,6 +63,7 @@ function getPlayerInfo(player) {
   return `${markEmoji[player.mark]}${player.name}[${player.uid}]`;
 }
 
+// todo(vmyshko): put into human
 function waitForCellClick($grid) {
   let { promise, resolve, reject } = Promise.withResolvers();
 
@@ -93,7 +100,7 @@ export class PlayerHuman extends Player {
   cancelMove() {
     const self = this;
 
-    self.reject();
+    self.reject?.();
     console.log(`🛑 ${getPlayerInfo(self)} move cancelled`);
   }
 
@@ -113,7 +120,7 @@ export class PlayerHuman extends Player {
 
       resolve($cell);
     } catch {
-      console.log(`🛑 ${getPlayerInfo(self)} move cancelled?`);
+      //   console.log(`🛑 ${getPlayerInfo(self)} move cancelled?`);
     }
   }
 }

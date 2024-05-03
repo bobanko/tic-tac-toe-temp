@@ -97,14 +97,9 @@ function createCells() {
   }
 }
 
-const unfinishedTurns = new Set();
+const playerQueue = new PlayerQueue();
 
 async function initGrid(gameMode) {
-  unfinishedTurns.forEach((turn) => {
-    turn();
-    unfinishedTurns.delete(turn);
-  });
-
   disableGrid();
 
   createCells();
@@ -114,7 +109,6 @@ async function initGrid(gameMode) {
   //enable game
   enableGrid();
 
-  const playerQueue = new PlayerQueue();
   if (gameMode === gameModes.multiplayer) {
     playerQueue.refill([
       new PlayerHuman({ mark: markCross }),
@@ -140,8 +134,6 @@ async function initGrid(gameMode) {
 
     const { promise: move, resolve, reject } = Promise.withResolvers();
 
-    unfinishedTurns.add((args) => reject(args));
-
     currentPlayer.makeMove({ $cellGrid, resolve });
 
     let $cell;
@@ -152,8 +144,6 @@ async function initGrid(gameMode) {
       // todo(vmyshko): cancel everything!11
 
       console.log("🛑 game interrupted!!!");
-
-      currentPlayer.cancelMove();
 
       return;
     }
