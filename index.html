@@ -6,7 +6,8 @@
     <title>Tic Tac Toe</title>
     <script type="module" src="./main.js" async></script>
     <link rel="stylesheet" href="style.css" />
-    <link rel="icon" href="./app-icon.svg" type="image/svg+xml">
+    <link rel="icon" href="./app-icon.svg" type="image/svg+xml" />
+  </head>
   <body class="flex-col align-center justify-center">
     <section class="main flex-col">
       <template id="$tmplCell">
@@ -61,7 +62,7 @@
       <!-- <div class="flex justify-center">
         <input type="range" name="" id="" min="0" max="3" />
       </div> -->
-      <div class="mode-selector flex">
+      <div id="$controlPanel" class="control-panel flex">
         <!-- todo(vmyshko): replace to buttons -->
         <div id="$btnPowerOff" class="mode-option">
           <img class="mode-icon" src="./icon-power.svg" alt="power-off" />
