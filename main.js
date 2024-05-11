@@ -18,6 +18,11 @@ import { PlayerQueue } from "./player.js";
 import { PlayerHuman } from "./player-human.js";
 import { PlayerAi } from "./player-ai.js";
 
+export function getCellPosition($cell) {
+  const { col, row } = $cell.dataset;
+
+  return { col: +col, row: +row };
+}
 // -----------
 
 // let currentGameMode = gameModes.singleplayer;
@@ -38,7 +43,7 @@ async function playIntro(gameMode) {
   }
 }
 
-function getCell({ col, row }) {
+export function getCell({ col, row }) {
   // todo(vmyshko): better to use matrix?
   const $cell = $cellGrid.querySelector(
     `.cell[data-col='${col}'][data-row='${row}']`
@@ -47,7 +52,8 @@ function getCell({ col, row }) {
   return $cell;
 }
 
-function checkWin({ col, row, mark }) {
+// todo(vmyshko): move to utils/helpers?
+export function checkWin({ col, row, mark }) {
   const rowCells = [];
   const colCells = [];
   const mainDiagCells = [];
@@ -169,7 +175,7 @@ async function initGrid(gameMode) {
         $cellToMarkOld.classList.add(markOld);
       }
 
-      const { col, row } = $cell.dataset;
+      const { col, row } = getCellPosition($cell);
 
       const { isWin, winCells = [] } = checkWin({
         col,
