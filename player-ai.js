@@ -1,4 +1,4 @@
-import { colSize, markCross, markZero, rowSize } from "./config.js";
+import { colSize, markCross, markOld, markZero, rowSize } from "./config.js";
 import { wait } from "./helpers.js";
 import { getCell, getCellPosition } from "./main.js";
 import { Player, hasMarks } from "./player.js";
@@ -23,7 +23,8 @@ function checkPossibleWin({ col, row, mark }) {
       const pos = getCellPosition($cell);
 
       return (
-        $cell.classList.contains(mark) ||
+        ($cell.classList.contains(mark) &&
+          !$cell.classList.contains(markOld)) ||
         //is checked cell
         (pos.col === col && pos.row === row)
       );
@@ -144,7 +145,7 @@ export class PlayerAi extends Player {
 
     console.log(this.cellPriorities);
 
-    await wait(300);
+    await wait(500);
 
     for (let $cell of $cellGrid.children) {
       const { col, row } = getCellPosition($cell);
